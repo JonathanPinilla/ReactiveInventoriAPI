@@ -6,8 +6,10 @@ import com.sofkau.inventory.domain.dto.ArmorDTO;
 import com.sofkau.inventory.publisher.ArmorEquippedPublisher;
 import com.sofkau.inventory.repository.InventoryRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+@Service
 public class UnEquipArmorUseCase {
 
     private final InventoryRepository inventoryRepository;
@@ -24,10 +26,10 @@ public class UnEquipArmorUseCase {
         return inventoryRepository.findById(armorId)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("The armor does not exist")))
                 .flatMap(armor -> {
-                    if (armor.getIsEquipped()) {
-                        return Mono.error(new IllegalArgumentException("The armor is already equipped"));
+                    if (!armor.getIsEquipped()) {
+                        return Mono.error(new IllegalArgumentException("The armor is not equipped"));
                     }else {
-                        armor.setIsEquipped(true);
+                        armor.setIsEquipped(false);
                         return this.inventoryRepository.save(armor);
                     }
                 })

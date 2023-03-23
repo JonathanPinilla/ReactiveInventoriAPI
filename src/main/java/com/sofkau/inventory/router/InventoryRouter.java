@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -17,6 +18,12 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 
 @Configuration
 public class InventoryRouter {
+
+    private WebClient playerApi;
+
+    public InventoryRouter(){
+        playerApi = WebClient.create("http://localhost:8080");
+    }
 
     @Bean
     public RouterFunction<ServerResponse> getAllArmor(GetAllArmorsUseCase getAllArmorsUseCase) {
@@ -51,9 +58,27 @@ public class InventoryRouter {
     @Bean
     public RouterFunction<ServerResponse> equipArmor(EquipArmorUseCase equipArmorUseCase) {
         return route(PUT("/api/armor/{id}/equip/{id-p}"),
-                request -> request.bodyToMono(ArmorDTO.class)
+                request -> playerApi.get()
+                        .uri("/api/player/{id}", request.pathVariable("id-p"))
+                        .retrieve()
+                        .bodyToMono(ArmorDTO.class)
                         .flatMap(armorDTO -> equipArmorUseCase.equipArmor(request.pathVariable("id"), request.pathVariable("id-p"))
-                                .flatMap(result -> ServerResponse.status(201)
+                                .flatMap(result -> ServerResponse.status(200)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .bodyValue(result))
+                        )
+                        .onErrorResume(error -> ServerResponse.badRequest().build()));
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> unEquipArmor(UnEquipArmorUseCase unEquipArmorUseCase) {
+        return route(PUT("/api/armor/{id}/unEquip/{id-p}"),
+                request -> playerApi.get()
+                        .uri("/api/player/{id}", request.pathVariable("id-p"))
+                        .retrieve()
+                        .bodyToMono(ArmorDTO.class)
+                        .flatMap(armorDTO -> unEquipArmorUseCase.equipArmor(request.pathVariable("id"), request.pathVariable("id-p"))
+                                .flatMap(result -> ServerResponse.status(200)
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .bodyValue(result))
                         )

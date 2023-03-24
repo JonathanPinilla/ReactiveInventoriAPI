@@ -23,7 +23,7 @@ public class EquipArmorUseCase {
     }
 
     public Mono<Armor> equipArmor(String armorId, String playerId){
-        return inventoryRepository.findById(armorId)
+        return this.inventoryRepository.findById(armorId)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("The armor does not exist")))
                 .flatMap(armor -> {
                     if (armor.getIsEquipped()) {

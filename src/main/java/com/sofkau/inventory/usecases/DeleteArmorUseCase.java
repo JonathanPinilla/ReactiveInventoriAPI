@@ -18,6 +18,7 @@ public class DeleteArmorUseCase implements Function<String, Mono<Void>> {
 
     @Override
     public Mono<Void> apply(String id) {
-        return inventoryRepository.deleteById(id);
+        return inventoryRepository.deleteById(id)
+                .onErrorResume(Mono::error);
     }
 }

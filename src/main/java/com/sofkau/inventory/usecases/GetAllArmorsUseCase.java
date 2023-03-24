@@ -6,6 +6,7 @@ import com.sofkau.inventory.repository.InventoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.function.Supplier;
 
@@ -25,7 +26,8 @@ public class GetAllArmorsUseCase implements Supplier<Flux<ArmorDTO>> {
     public Flux<ArmorDTO> get() {
         return inventoryRepository.findAll()
                 .switchIfEmpty(Flux.empty())
-                .map(this::toDto);
+                .map(this::toDto)
+                .onErrorResume(Mono::error);
     }
 
     private ArmorDTO toDto(Armor player) {

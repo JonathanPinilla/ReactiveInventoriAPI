@@ -23,7 +23,8 @@ public class SaveArmorUseCase implements Function<ArmorDTO, Mono<ArmorDTO>> {
     @Override
     public Mono<ArmorDTO> apply(ArmorDTO armorDTO) {
         return inventoryRepository.save(toEntity(armorDTO))
-                .map(this::toDto);
+                .map(this::toDto)
+                .onErrorResume(Mono::error);
     }
 
     private Armor toEntity(ArmorDTO playerDTO) {

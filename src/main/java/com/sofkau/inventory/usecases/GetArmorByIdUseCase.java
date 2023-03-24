@@ -25,7 +25,8 @@ public class GetArmorByIdUseCase implements Function<String, Mono<ArmorDTO>> {
     public Mono<ArmorDTO> apply(String id) {
         return inventoryRepository.findById(id)
                 .switchIfEmpty(Mono.empty())
-                .map(this::toDto);
+                .map(this::toDto)
+                .onErrorResume(Mono::error);
     }
 
     private ArmorDTO toDto(Armor player) {

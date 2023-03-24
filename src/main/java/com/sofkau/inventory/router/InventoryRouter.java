@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
@@ -52,7 +53,7 @@ public class InventoryRouter {
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .bodyValue(result))
                         )
-                        .onErrorResume(error -> ServerResponse.badRequest().build()));
+                        .onErrorResume(throwable -> ServerResponse.status(HttpStatus.NOT_ACCEPTABLE).bodyValue(throwable.getMessage())));
     }
 
     @Bean

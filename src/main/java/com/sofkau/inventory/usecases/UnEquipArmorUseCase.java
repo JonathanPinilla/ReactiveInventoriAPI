@@ -40,7 +40,8 @@ public class UnEquipArmorUseCase {
                         throw new RuntimeException(e);
                     }
                 })
-                .doOnError(armorEquippedPublisher::publishError);
+                .doOnError(armorEquippedPublisher::publishError)
+                .onErrorResume(Mono::error);
     }
 
     public ArmorDTO toArmorDTO(Armor armor){
